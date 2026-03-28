@@ -6,6 +6,9 @@ import { useState } from "react";
 import PetitionSignForm from "@/components/PetitionSignForm";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useParallax } from "@/hooks/useParallax";
+import Timeline from "@/components/Timeline";
+import MediaGallery from "@/components/MediaGallery";
+import NewsletterForm from "@/components/NewsletterForm";
 
 
 export default function Home() {
@@ -152,6 +155,17 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Timeline Section */}
+      <section className="py-20 px-4">
+        <div className="container max-w-5xl mx-auto">
+          <h2 className="text-4xl font-black mb-6 text-center">{getContent("timeline_title", "Cronologia da Mobilização")}</h2>
+          <p className="text-center text-red-300 mb-12 max-w-2xl mx-auto">
+            Acompanhe os fatos e as decisões que nos trouxeram até aqui. A transparência é nossa maior arma.
+          </p>
+          <Timeline />
+        </div>
+      </section>
+
       {/* The Numbers */}
       <section className="py-16 px-4">
         <div className="container max-w-5xl mx-auto">
@@ -171,6 +185,22 @@ export default function Home() {
               <p className="text-red-200 font-semibold">Governabilidade Sem Traição</p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Gallery Section */}
+      <section className="py-20 px-4 bg-black/30">
+        <div className="container max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div className="max-w-2xl">
+              <h2 className="text-4xl font-black mb-4">{getContent("gallery_title", "Galeria da Resistência")}</h2>
+              <p className="text-red-200">
+                Registros visuais da nossa luta em todo o Ceará. Fotos de comícios, vídeos de denúncias e a voz do povo.
+              </p>
+            </div>
+            <NewsletterForm />
+          </div>
+          <MediaGallery />
         </div>
       </section>
 

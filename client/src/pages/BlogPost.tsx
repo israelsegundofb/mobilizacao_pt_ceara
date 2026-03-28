@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, User, Tag, Share2 } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
+import CommentSection from "@/components/CommentSection";
 
 export default function BlogPost() {
   const [match, params] = useRoute("/blog/:slug");
@@ -179,6 +180,9 @@ export default function BlogPost() {
               </div>
             </div>
           </div>
+
+          {/* Comments Section */}
+          <CommentSection postId={post.id} />
 
           {/* Related Posts */}
           <div className="mt-16 pt-12 border-t border-red-900/30">

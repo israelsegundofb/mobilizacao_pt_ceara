@@ -84,3 +84,63 @@ export const blogPosts = mysqlTable("blog_posts", {
 
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type InsertBlogPost = typeof blogPosts.$inferInsert;
+
+/**
+ * Newsletter Subscribers - Captura de contatos para mobilização
+ */
+export const newsletterSubscribers = mysqlTable("newsletter_subscribers", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }), // Nome opcional
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  active: boolean("active").default(true).notNull(), // Se a inscrição está ativa
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
+export type InsertNewsletterSubscriber = typeof newsletterSubscribers.$inferInsert;
+
+/**
+ * Blog Comments - Sistema de comentários para posts
+ */
+export const blogComments = mysqlTable("blog_comments", {
+  id: int("id").autoincrement().primaryKey(),
+  postId: int("postId").notNull(), // ID do post relacionado
+  authorName: varchar("authorName", { length: 255 }).notNull(),
+  content: text("content").notNull(),
+  published: boolean("published").default(false).notNull(), // Moderação manual por padrão
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type BlogComment = typeof blogComments.$inferSelect;
+export type InsertBlogComment = typeof blogComments.$inferInsert;
+
+/**
+ * Media Gallery - Fotos e Vídeos (YouTube/Reels)
+ */
+export const mediaItems = mysqlTable("media_items", {
+  id: int("id").autoincrement().primaryKey(),
+  url: varchar("url", { length: 500 }).notNull(), // Link da imagem ou embed
+  caption: varchar("caption", { length: 255 }), // Legenda
+  type: mysqlEnum("type", ["image", "video"]).default("image").notNull(),
+  category: varchar("category", { length: 100 }), // Categoria (ex: "comício", "denúncia")
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type MediaItem = typeof mediaItems.$inferSelect;
+export type InsertMediaItem = typeof mediaItems.$inferInsert;
+
+/**
+ * Timeline Events - Linha do tempo de eventos políticos
+ */
+export const timelineEvents = mysqlTable("timeline_events", {
+  id: int("id").autoincrement().primaryKey(),
+  eventDate: timestamp("eventDate").notNull(), // Data do evento
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  order: int("order").default(0).notNull(), // Para ordenação manual se necessário
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TimelineEvent = typeof timelineEvents.$inferSelect;
+export type InsertTimelineEvent = typeof timelineEvents.$inferInsert;

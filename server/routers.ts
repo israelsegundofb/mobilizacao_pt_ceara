@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { addPetitionSignature, getPetitionSignatures, getPetitionSignatureCount, getSiteContent, getSiteContentBySection, updateSiteContent, createBlogPost, updateBlogPost, deleteBlogPost, getBlogPostById, getBlogPostBySlug, getPublishedBlogPosts, getAllBlogPosts, getBlogPostsByCategory, incrementBlogPostViews } from "./db";
+import { addPetitionSignature, getPetitionSignatures, getPetitionSignatureCount, getSiteContent, getSiteContentBySection, updateSiteContent, createBlogPost, updateBlogPost, deleteBlogPost, getBlogPostById, getBlogPostBySlug, getPublishedBlogPosts, getAllBlogPosts, getBlogPostsByCategory, incrementBlogPostViews, addNewsletterSubscriber, getNewsletterSubscribers, addBlogComment, getBlogComments, updateBlogComment, addMediaItem, getMediaItems, addTimelineEvent, getTimelineEvents } from "./db";
 import { protectedProcedure } from "./_core/trpc";
 import { fetchInstagramFeedCached } from "./instagram-scraper";
 
@@ -188,6 +188,95 @@ export const appRouter = router({
       .input(z.object({ category: z.string(), limit: z.number().default(10) }))
       .query(async ({ input }) => {
         return await getBlogPostsByCategory(input.category, input.limit);
+      }),
+
+    addComment: publicProcedure
+      .input(z.object({
+        postId: z.number(),
+        authorName: z.string().min(2),
+        content: z.string().min(2),
+      }))
+      .mutation(async ({ input }) => {
+        await addBlogComment({
+          postId: input.postId,
+          authorName: input.authorName,
+          content: input.content,
+          published: false, // Requer moderação
+        });
+        return { success: true };
+      }),
+
+    getComments: publicProcedure
+      .input(z.object({ postId: z.number(), admin: z.boolean().default(false) }))
+      .query(async ({ input, ctx }) => {
+        const showAll = input.admin && ctx.user?.role === 'admin';
+        return await getBlogComments(input.postId, !showAll);
+      }),
+
+    updateComment: protectedProcedure
+      .input(z.object({ id: z.number(), published: z.boolean() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new Error('Unauthorized');
+        await updateBlogComment(input.id, { published: input.published });
+        return { success: true };
+      }),
+  }),
+
+  newsletter: router({
+    subscribe: publicProcedure
+      .input(z.object({ name: z.string().optional(), email: z.string().email() }))
+      .mutation(async ({ input }) => {
+        await addNewsletterSubscriber({
+          name: input.name || null,
+          email: input.email,
+        });
+        return { success: true };
+      }),
+    
+    getAll: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') throw new Error('Unauthorized');
+      return await getNewsletterSubscribers();
+    }),
+  }),
+
+  gallery: router({
+    getAll: publicProcedure.query(async () => {
+      return await getMediaItems();
+    }),
+
+    addItem: protectedProcedure
+      .input(z.object({
+        url: z.string().url(),
+        caption: z.string().optional(),
+        type: z.enum(['image', 'video']),
+        category: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new Error('Unauthorized');
+        await addMediaItem(input);
+        return { success: true };
+      }),
+  }),
+
+  timeline: router({
+    getAll: publicProcedure.query(async () => {
+      return await getTimelineEvents();
+    }),
+
+    addEvent: protectedProcedure
+      .input(z.object({
+        title: z.string(),
+        description: z.string(),
+        eventDate: z.string(), // ISO string from frontend
+        order: z.number().default(0),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new Error('Unauthorized');
+        await addTimelineEvent({
+          ...input,
+          eventDate: new Date(input.eventDate),
+        });
+        return { success: true };
       }),
   }),
 });

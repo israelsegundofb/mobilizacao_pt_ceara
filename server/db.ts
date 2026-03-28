@@ -1,6 +1,6 @@
 import { eq, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, blogPosts, InsertBlogPost, InsertPetitionSignature, petitionSignatures, siteContent, InsertSiteContent } from "../drizzle/schema";
+import { InsertUser, users, blogPosts, InsertBlogPost, InsertPetitionSignature, petitionSignatures, siteContent, InsertSiteContent, newsletterSubscribers, InsertNewsletterSubscriber, blogComments, InsertBlogComment, mediaItems, InsertMediaItem, timelineEvents, InsertTimelineEvent } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -358,5 +358,113 @@ export async function incrementBlogPostViews(id: number): Promise<void> {
       .where(eq(blogPosts.id, id));
   } catch (error) {
     console.error("[Database] Failed to increment views:", error);
+  }
+}
+
+// Newsletter Subscribers
+export async function addNewsletterSubscriber(subscriber: InsertNewsletterSubscriber) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  try {
+    await db.insert(newsletterSubscribers).values(subscriber);
+  } catch (error) {
+    console.error("[Database] Failed to add newsletter subscriber:", error);
+    throw error;
+  }
+}
+
+export async function getNewsletterSubscribers() {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    return await db.select().from(newsletterSubscribers).orderBy(desc(newsletterSubscribers.createdAt));
+  } catch (error) {
+    console.error("[Database] Failed to get newsletter subscribers:", error);
+    return [];
+  }
+}
+
+// Blog Comments
+export async function addBlogComment(comment: InsertBlogComment) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  try {
+    await db.insert(blogComments).values(comment);
+  } catch (error) {
+    console.error("[Database] Failed to add blog comment:", error);
+    throw error;
+  }
+}
+
+export async function getBlogComments(postId: number, publishedOnly = true) {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    let query = db.select().from(blogComments).where(eq(blogComments.postId, postId));
+    if (publishedOnly) {
+      // @ts-ignore - Drizzle query builder types
+      query = query.where(eq(blogComments.published, true));
+    }
+    return await query.orderBy(desc(blogComments.createdAt));
+  } catch (error) {
+    console.error("[Database] Failed to get blog comments:", error);
+    return [];
+  }
+}
+
+export async function updateBlogComment(id: number, data: Partial<InsertBlogComment>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  try {
+    await db.update(blogComments).set(data).where(eq(blogComments.id, id));
+  } catch (error) {
+    console.error("[Database] Failed to update blog comment:", error);
+    throw error;
+  }
+}
+
+// Media Gallery
+export async function addMediaItem(item: InsertMediaItem) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  try {
+    await db.insert(mediaItems).values(item);
+  } catch (error) {
+    console.error("[Database] Failed to add media item:", error);
+    throw error;
+  }
+}
+
+export async function getMediaItems() {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    return await db.select().from(mediaItems).orderBy(desc(mediaItems.createdAt));
+  } catch (error) {
+    console.error("[Database] Failed to get media items:", error);
+    return [];
+  }
+}
+
+// Timeline Events
+export async function addTimelineEvent(event: InsertTimelineEvent) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  try {
+    await db.insert(timelineEvents).values(event);
+  } catch (error) {
+    console.error("[Database] Failed to add timeline event:", error);
+    throw error;
+  }
+}
+
+export async function getTimelineEvents() {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    return await db.select().from(timelineEvents).orderBy(desc(timelineEvents.eventDate));
+  } catch (error) {
+    console.error("[Database] Failed to get timeline events:", error);
+    return [];
   }
 }
