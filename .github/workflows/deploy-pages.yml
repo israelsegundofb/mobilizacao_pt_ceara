@@ -32,6 +32,8 @@ jobs:
 
       - name: Build 🏗️
         run: pnpm build
+        env:
+          GITHUB_PAGES: true
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4

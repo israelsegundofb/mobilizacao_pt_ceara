@@ -153,7 +153,7 @@ function vitePluginManusDebugCollector(): Plugin {
 const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
 
 export default defineConfig({
-  base: "/mobilizacao_pt_ceara/",
+  base: process.env.GITHUB_PAGES === "true" ? "/mobilizacao_pt_ceara/" : "/",
   plugins,
   resolve: {
     alias: {
