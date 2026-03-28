@@ -4,6 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { addPetitionSignature, getPetitionSignatures, getPetitionSignatureCount, getSiteContent, getSiteContentBySection, updateSiteContent, createBlogPost, updateBlogPost, deleteBlogPost, getBlogPostById, getBlogPostBySlug, getPublishedBlogPosts, getAllBlogPosts, getBlogPostsByCategory, incrementBlogPostViews, addNewsletterSubscriber, getNewsletterSubscribers, addBlogComment, getBlogComments, updateBlogComment, addMediaItem, getMediaItems, addTimelineEvent, getTimelineEvents } from "./db";
+import { sendNewsletterPostNotification } from "./email";
 import { protectedProcedure } from "./_core/trpc";
 import { fetchInstagramFeedCached } from "./instagram-scraper";
 
@@ -147,6 +148,23 @@ export const appRouter = router({
           throw new Error('Unauthorized');
         }
         const { id, ...data } = input;
+        
+        // Se o post está sendo publicado agora, notifica a newsletter
+        if (data.published === true) {
+          const currentPost = await getBlogPostById(id);
+          if (currentPost && !currentPost.published) {
+            const subscribers = await getNewsletterSubscribers();
+            const activeEmails = subscribers.filter(s => s.active).map(s => s.email);
+            
+            // Disparo assíncrono para não travar a resposta da API
+            sendNewsletterPostNotification({
+              title: data.title || currentPost.title,
+              excerpt: data.excerpt || currentPost.excerpt,
+              slug: data.slug || currentPost.slug
+            }, activeEmails).catch(console.error);
+          }
+        }
+
         await updateBlogPost(id, data);
         return { success: true };
       }),

@@ -44,6 +44,9 @@ async function startServer() {
     })
   );
   // development mode uses Vite, production mode uses static files
+  if (!process.env.NODE_ENV) {
+    process.env.NODE_ENV = "production";
+  }
   const isDev = process.env.NODE_ENV === "development";
   console.log(`[Server] NODE_ENV: "${process.env.NODE_ENV}", isDev: ${isDev}`);
   if (isDev) {
@@ -54,7 +57,7 @@ async function startServer() {
     serveStatic(app);
   }
 
-  const preferredPort = parseInt(process.env.PORT || "3005");
+  const preferredPort = 3000;
   const port = await findAvailablePort(preferredPort);
 
   if (port !== preferredPort) {
