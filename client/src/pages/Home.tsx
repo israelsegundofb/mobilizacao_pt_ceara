@@ -43,14 +43,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 px-4">
-        <div 
-          ref={heroParallax.ref}
-          className="container max-w-4xl mx-auto text-center"
-          style={{
-            transform: `translateY(${heroParallax.offset}px)`,
-            transition: 'transform 0.1s ease-out',
-          }}
-        >
+        <div className="container max-w-4xl mx-auto text-center">
           <div className="mb-6 inline-block px-4 py-2 bg-red-600/20 border border-red-500/50 rounded-full">
             <p className="text-red-300 text-sm font-semibold">{getContent("hero_badge", "🔴 DENÚNCIA POLÍTICA")}</p>
           </div>
@@ -88,14 +81,7 @@ export default function Home() {
 
       {/* The Truth Section */}
       <section className="py-16 px-4 bg-black/50">
-        <div 
-          ref={truthParallax.ref}
-          className="container max-w-5xl mx-auto"
-          style={{
-            transform: `translateY(${truthParallax.offset}px)`,
-            transition: 'transform 0.1s ease-out',
-          }}
-        >
+        <div className="container max-w-5xl mx-auto">
           <h2 className="text-4xl font-black mb-12 text-center">{getContent("truth_title", "A Verdade Que Ninguém Quer Ouvir")}</h2>
           
           <div className="grid md:grid-cols-2 gap-6">
@@ -198,14 +184,7 @@ export default function Home() {
 
       {/* Call to Action Section */}
       <section className="py-20 px-4 bg-gradient-to-t from-black to-transparent">
-        <div 
-          ref={ctaParallax.ref}
-          className="container max-w-4xl mx-auto text-center"
-          style={{
-            transform: `translateY(${ctaParallax.offset}px)`,
-            transition: 'transform 0.1s ease-out',
-          }}
-        >
+        <div className="container max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-black mb-6">Sua Voz Muda Tudo</h2>
           <p className="text-xl text-red-200 mb-8 max-w-2xl mx-auto">
             O PT é do povo, é da luta! A gente vai resgatar a nossa essência. 
