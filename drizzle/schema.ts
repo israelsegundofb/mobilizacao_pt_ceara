@@ -61,3 +61,26 @@ export const siteContent = mysqlTable("site_content", {
 
 export type SiteContent = typeof siteContent.$inferSelect;
 export type InsertSiteContent = typeof siteContent.$inferInsert;
+
+/**
+ * Blog Posts - Sistema de blog com editor de texto rico
+ */
+export const blogPosts = mysqlTable("blog_posts", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(), // Título do post
+  slug: varchar("slug", { length: 255 }).notNull().unique(), // URL amigável (ex: "meu-primeiro-post")
+  excerpt: text("excerpt").notNull(), // Resumo/descrição curta do post
+  content: text("content").notNull(), // Conteúdo em HTML/Markdown
+  featuredImage: varchar("featuredImage", { length: 500 }), // URL da imagem de destaque
+  author: varchar("author", { length: 255 }).notNull(), // Autor do post
+  category: varchar("category", { length: 100 }).notNull(), // Categoria do post
+  tags: text("tags"), // Tags separadas por vírgula
+  published: boolean("published").default(false).notNull(), // Publicado ou rascunho
+  views: int("views").default(0).notNull(), // Contador de visualizações
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  publishedAt: timestamp("publishedAt"), // Data de publicação
+});
+
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type InsertBlogPost = typeof blogPosts.$inferInsert;

@@ -5,16 +5,22 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import AdminDashboard from "./pages/AdminDashboard";
 import ContentEditor from "./pages/ContentEditor";
+import BlogManagement from "./pages/BlogManagement";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/blog"} component={Blog} />
+      <Route path={"/blog/:slug"} component={BlogPost} />
       <Route path={"/admin"} component={AdminDashboard} />
-      <Route path={"/admin/editor"} component={ContentEditor} />
+      <Route path={"/admin/content"} component={ContentEditor} />
+      <Route path={"/admin/blog"} component={BlogManagement} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
@@ -31,7 +37,8 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider
-        defaultTheme="dark"
+        defaultTheme="light"
+        // switchable
       >
         <TooltipProvider>
           <Toaster />

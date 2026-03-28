@@ -15,6 +15,13 @@
       "when": 1774718620892,
       "tag": "0001_known_viper",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1774721439588,
+      "tag": "0002_normal_bedlam",
+      "breakpoints": true
     }
   ]
 }
