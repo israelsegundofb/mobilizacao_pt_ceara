@@ -26,6 +26,7 @@ export async function setupVite(app: Express, server: Server) {
 
     try {
       console.log(`[Vite] Serving request: ${url}`);
+      console.log(`[Vite] Request URL: ${url}`);
       const clientTemplate = path.resolve(
         import.meta.dirname,
         "../..",
@@ -53,6 +54,8 @@ export async function setupVite(app: Express, server: Server) {
 
 export function serveStatic(app: Express) {
   const distPath = path.resolve(process.cwd(), "dist", "public");
+  console.log(`[Static] Resolving distPath: "${distPath}"`);
+  console.log(`[Static] Current Working Directory (cwd): "${process.cwd()}"`);
   
   if (!fs.existsSync(distPath)) {
     console.error(
