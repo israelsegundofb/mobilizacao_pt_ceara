@@ -6,7 +6,7 @@ import { useState } from "react";
 import PetitionSignForm from "@/components/PetitionSignForm";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useParallax } from "@/hooks/useParallax";
-import InstagramFeed from "@/components/InstagramFeed";
+
 
 export default function Home() {
   // The userAuth hooks provides authentication state
@@ -224,9 +224,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Instagram Feed Section */}
-      <InstagramFeed />
 
       {/* Footer */}
       <footer className="bg-black border-t border-red-900/30 py-12 px-4">
