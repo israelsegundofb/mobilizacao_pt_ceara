@@ -10,7 +10,7 @@ import * as XLSX from "xlsx";
 export default function AdminDashboard() {
   const { user, loading, logout } = useAuth();
   const [, setLocation] = useLocation();
-  const { data: signatureData, isLoading: isLoadingSignatures } = trpc.petition.getSignatures.useQuery();
+  const { data: signatureData, isLoading: isLoadingSignatures } = trpc.petition.getAll.useQuery();
   const { data: countData } = trpc.petition.getCount.useQuery();
 
   // Redirecionar se não for admin
@@ -33,7 +33,7 @@ export default function AdminDashboard() {
   }
 
   const signatures = signatureData || [];
-  const totalSignatures = countData?.count || 0;
+  const totalSignatures = countData || 0;
 
   const downloadExcel = () => {
     if (signatures.length === 0) {
@@ -136,6 +136,15 @@ export default function AdminDashboard() {
             <Button onClick={downloadExcel} className="w-full gap-2 bg-red-600 hover:bg-red-700">
               <Download className="w-4 h-4" />
               Exportar Excel
+            </Button>
+          </Card>
+
+          <Card className="bg-gray-800 border-gray-700 p-6">
+            <Button 
+              onClick={() => setLocation("/admin/editor")} 
+              className="w-full gap-2 bg-blue-600 hover:bg-blue-700"
+            >
+              ✏️ Editar Conteúdo
             </Button>
           </Card>
         </div>

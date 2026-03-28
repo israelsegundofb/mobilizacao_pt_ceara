@@ -44,3 +44,20 @@ export const petitionSignatures = mysqlTable("petition_signatures", {
 
 export type PetitionSignature = typeof petitionSignatures.$inferSelect;
 export type InsertPetitionSignature = typeof petitionSignatures.$inferInsert;
+
+/**
+ * Conteúdo do site - Gerenciável pelo administrador
+ */
+export const siteContent = mysqlTable("site_content", {
+  id: int("id").autoincrement().primaryKey(),
+  key: varchar("key", { length: 100 }).notNull().unique(), // Identificador único do conteúdo
+  title: varchar("title", { length: 255 }).notNull(), // Título do campo
+  content: text("content").notNull(), // Conteúdo/texto
+  section: varchar("section", { length: 100 }).notNull(), // Seção (hero, truth, numbers, cta, etc)
+  type: varchar("type", { length: 50 }).default("text").notNull(), // Tipo: text, textarea, title, description
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SiteContent = typeof siteContent.$inferSelect;
+export type InsertSiteContent = typeof siteContent.$inferInsert;

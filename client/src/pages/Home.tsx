@@ -4,11 +4,18 @@ import { Card } from "@/components/ui/card";
 import { ArrowRight, Heart, Users, AlertCircle, Share2 } from "lucide-react";
 import { useState } from "react";
 import PetitionSignForm from "@/components/PetitionSignForm";
+import { useSiteContent } from "@/hooks/useSiteContent";
+import { useParallax } from "@/hooks/useParallax";
+import InstagramFeed from "@/components/InstagramFeed";
 
 export default function Home() {
   // The userAuth hooks provides authentication state
   // To implement login/logout functionality, simply call logout() or redirect to getLoginUrl()
   let { user, loading, error, isAuthenticated, logout } = useAuth();
+  const { getContent } = useSiteContent();
+  const heroParallax = useParallax(0.5);
+  const truthParallax = useParallax(0.3);
+  const ctaParallax = useParallax(0.4);
 
   const [activeSection, setActiveSection] = useState<string | null>(null);
 
@@ -36,18 +43,24 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 px-4">
-        <div className="container max-w-4xl mx-auto text-center">
+        <div 
+          ref={heroParallax.ref}
+          className="container max-w-4xl mx-auto text-center"
+          style={{
+            transform: `translateY(${heroParallax.offset}px)`,
+            transition: 'transform 0.1s ease-out',
+          }}
+        >
           <div className="mb-6 inline-block px-4 py-2 bg-red-600/20 border border-red-500/50 rounded-full">
-            <p className="text-red-300 text-sm font-semibold">🔴 DENÚNCIA POLÍTICA</p>
+            <p className="text-red-300 text-sm font-semibold">{getContent("hero_badge", "🔴 DENÚNCIA POLÍTICA")}</p>
           </div>
           
           <h1 className="text-5xl md:text-6xl font-black mb-6 leading-tight">
-            O PT TÁ MUDANDO DE LADO NO CEARÁ?
+            {getContent("hero_title", "O PT TÁ MUDANDO DE LADO NO CEARÁ?")}
           </h1>
           
           <p className="text-xl md:text-2xl text-red-200 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Mulheres da luta estão sendo silenciadas. A estrela vermelha virou balcão de negócios. 
-            <span className="block mt-4 font-bold text-red-400">É hora de falar a verdade.</span>
+            {getContent("hero_subtitle", "Mulheres da luta estão sendo silenciadas. A estrela vermelha virou balcão de negócios. É hora de falar a verdade.")}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -75,8 +88,15 @@ export default function Home() {
 
       {/* The Truth Section */}
       <section className="py-16 px-4 bg-black/50">
-        <div className="container max-w-5xl mx-auto">
-          <h2 className="text-4xl font-black mb-12 text-center">A Verdade Que Ninguém Quer Ouvir</h2>
+        <div 
+          ref={truthParallax.ref}
+          className="container max-w-5xl mx-auto"
+          style={{
+            transform: `translateY(${truthParallax.offset}px)`,
+            transition: 'transform 0.1s ease-out',
+          }}
+        >
+          <h2 className="text-4xl font-black mb-12 text-center">{getContent("truth_title", "A Verdade Que Ninguém Quer Ouvir")}</h2>
           
           <div className="grid md:grid-cols-2 gap-6">
             {/* Card 1 */}
@@ -88,10 +108,10 @@ export default function Home() {
                 <div className="w-12 h-12 bg-red-600/30 rounded-lg flex items-center justify-center group-hover:bg-red-600/50 transition-colors">
                   <Users className="w-6 h-6 text-red-400" />
                 </div>
-                <h3 className="text-xl font-bold">Nossas Mulheres Estão Sendo Caladas</h3>
+                <h3 className="text-xl font-bold">{getContent("truth_card1_title", "Nossas Mulheres Estão Sendo Caladas")}</h3>
               </div>
               <p className="text-red-200 leading-relaxed">
-                Luizianne Lins e Larissa Gaspar, que construíram o PT no suor e na luta, hoje tão sendo deixadas de lado. É uma vergonha o que tão fazendo com elas.
+                {getContent("truth_card1_content", "Luizianne Lins e Larissa Gaspar, que construíram o PT no suor e na luta, hoje tão sendo deixadas de lado. É uma vergonha o que tão fazendo com elas.")}
               </p>
             </Card>
 
@@ -104,10 +124,10 @@ export default function Home() {
                 <div className="w-12 h-12 bg-red-600/30 rounded-lg flex items-center justify-center group-hover:bg-red-600/50 transition-colors">
                   <AlertCircle className="w-6 h-6 text-red-400" />
                 </div>
-                <h3 className="text-xl font-bold">Os Coronéis Tão Voltando</h3>
+                <h3 className="text-xl font-bold">{getContent("truth_card2_title", "Os Coronéis Tão Voltando")}</h3>
               </div>
               <p className="text-red-200 leading-relaxed">
-                Em nome de uma tal de "governabilidade", tão abrindo as portas do PT pra quem sempre foi contra a gente. Pra quem sempre defendeu os ricos e poderosos.
+                {getContent("truth_card2_content", "Em nome de uma tal de \"governabilidade\", tão abrindo as portas do PT pra quem sempre foi contra a gente. Pra quem sempre defendeu os ricos e poderosos.")}
               </p>
             </Card>
 
@@ -120,10 +140,10 @@ export default function Home() {
                 <div className="w-12 h-12 bg-red-600/30 rounded-lg flex items-center justify-center group-hover:bg-red-600/50 transition-colors">
                   <Heart className="w-6 h-6 text-red-400" />
                 </div>
-                <h3 className="text-xl font-bold">A Estrela Não É Balcão de Negócios</h3>
+                <h3 className="text-xl font-bold">{getContent("truth_card3_title", "A Estrela Não É Balcão de Negócios")}</h3>
               </div>
               <p className="text-red-200 leading-relaxed">
-                Essa "união" que eles falam é só pra trazer mais gente da direita pra dentro do partido. Tão transformando a nossa estrela vermelha num balcão de negócios pra oligarquia.
+                {getContent("truth_card3_content", "Essa \"união\" que eles falam é só pra trazer mais gente da direita pra dentro do partido. Tão transformando a nossa estrela vermelha num balcão de negócios pra oligarquia.")}
               </p>
             </Card>
 
@@ -136,10 +156,10 @@ export default function Home() {
                 <div className="w-12 h-12 bg-red-600/30 rounded-lg flex items-center justify-center group-hover:bg-red-600/50 transition-colors">
                   <Share2 className="w-6 h-6 text-red-400" />
                 </div>
-                <h3 className="text-xl font-bold">Mas a Gente Não Vai Deixar</h3>
+                <h3 className="text-xl font-bold">{getContent("truth_card4_title", "Mas a Gente Não Vai Deixar")}</h3>
               </div>
               <p className="text-red-200 leading-relaxed">
-                O PT é do povo, é da luta! E a gente vai resgatar a nossa essência. Sua voz é a força que a estrela precisa pra brilhar de novo!
+                {getContent("truth_card4_content", "O PT é do povo, é da luta! E a gente vai resgatar a nossa essência. Sua voz é a força que a estrela precisa pra brilhar de novo!")}
               </p>
             </Card>
           </div>
@@ -178,7 +198,14 @@ export default function Home() {
 
       {/* Call to Action Section */}
       <section className="py-20 px-4 bg-gradient-to-t from-black to-transparent">
-        <div className="container max-w-4xl mx-auto text-center">
+        <div 
+          ref={ctaParallax.ref}
+          className="container max-w-4xl mx-auto text-center"
+          style={{
+            transform: `translateY(${ctaParallax.offset}px)`,
+            transition: 'transform 0.1s ease-out',
+          }}
+        >
           <h2 className="text-4xl md:text-5xl font-black mb-6">Sua Voz Muda Tudo</h2>
           <p className="text-xl text-red-200 mb-8 max-w-2xl mx-auto">
             O PT é do povo, é da luta! A gente vai resgatar a nossa essência. 
@@ -218,6 +245,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Instagram Feed Section */}
+      <InstagramFeed />
 
       {/* Footer */}
       <footer className="bg-black border-t border-red-900/30 py-12 px-4">

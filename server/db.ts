@@ -92,7 +92,7 @@ export async function getUserByOpenId(openId: string) {
 // TODO: add feature queries here as your schema grows.
 
 // Petition signatures queries
-import { InsertPetitionSignature, petitionSignatures } from "../drizzle/schema";
+import { InsertPetitionSignature, petitionSignatures, siteContent, InsertSiteContent } from "../drizzle/schema";
 
 export async function addPetitionSignature(signature: InsertPetitionSignature) {
   const db = await getDb();
@@ -139,5 +139,69 @@ export async function getPetitionSignatureCount() {
   } catch (error) {
     console.error("[Database] Failed to get signature count:", error);
     return 0;
+  }
+}
+
+// Site Content Management
+export async function getSiteContent() {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get site content: database not available");
+    return [];
+  }
+
+  try {
+    const result = await db.select().from(siteContent);
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get site content:", error);
+    throw error;
+  }
+}
+
+export async function getSiteContentByKey(key: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get site content: database not available");
+    return undefined;
+  }
+
+  try {
+    const result = await db.select().from(siteContent).where(eq(siteContent.key, key)).limit(1);
+    return result.length > 0 ? result[0] : undefined;
+  } catch (error) {
+    console.error("[Database] Failed to get site content by key:", error);
+    throw error;
+  }
+}
+
+export async function getSiteContentBySection(section: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get site content: database not available");
+    return [];
+  }
+
+  try {
+    const result = await db.select().from(siteContent).where(eq(siteContent.section, section));
+    return result;
+  } catch (error) {
+    console.error("[Database] Failed to get site content by section:", error);
+    throw error;
+  }
+}
+
+export async function updateSiteContent(key: string, content: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update site content: database not available");
+    return;
+  }
+
+  try {
+    await db.update(siteContent).set({ content, updatedAt: new Date() }).where(eq(siteContent.key, key));
+  } catch (error) {
+    console.error("[Database] Failed to update site content:", error);
+    throw error;
   }
 }
