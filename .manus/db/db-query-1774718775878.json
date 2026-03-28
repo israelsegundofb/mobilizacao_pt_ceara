@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `petition_signatures` \nADD COLUMN `whatsapp` varchar(20) NOT NULL AFTER `cnf`;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YRD47rk759bQ8C.root --database Uy2Bh4aWGeFtZA8ypA6NX3 --execute ALTER TABLE `petition_signatures` \nADD COLUMN `whatsapp` varchar(20) NOT NULL AFTER `cnf`;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 517
+}

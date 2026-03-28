@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE `petition_signatures` \nADD COLUMN `cnf` varchar(20) NOT NULL AFTER `fullName`,\nADD COLUMN `whatsapp` varchar(20) NOT NULL AFTER `cnf`,\nADD COLUMN `city_new` varchar(100) NOT NULL AFTER `email`,\nADD COLUMN `state_new` varchar(2) NOT NULL AFTER `city_new`,\nDROP COLUMN `phone`,\nDROP COLUMN `city`,\nDROP COLUMN `state`,\nRENAME COLUMN `city_new` TO `city`,\nRENAME COLUMN `state_new` TO `state`,\nADD UNIQUE KEY `petition_signatures_cnf_unique` (`cnf`);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YRD47rk759bQ8C.root --database Uy2Bh4aWGeFtZA8ypA6NX3 --execute ALTER TABLE `petition_signatures` \nADD COLUMN `cnf` varchar(20) NOT NULL AFTER `fullName`,\nADD COLUMN `whatsapp` varchar(20) NOT NULL AFTER `cnf`,\nADD COLUMN `city_new` varchar(100) NOT NULL AFTER `email`,\nADD COLUMN `state_new` varchar(2) NOT NULL AFTER `city_new`,\nDROP COLUMN `phone`,\nDROP COLUMN `city`,\nDROP COLUMN `state`,\nRENAME COLUMN `city_new` TO `city`,\nRENAME COLUMN `state_new` TO `state`,\nADD UNIQUE KEY `petition_signatures_cnf_unique` (`cnf`);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'cnf' in 'petition_signatures'"
+  ]
+}

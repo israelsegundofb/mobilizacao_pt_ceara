@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE `petition_signatures` \nDROP COLUMN `phone`,\nDROP COLUMN `city`,\nDROP COLUMN `state`,\nADD COLUMN `city` varchar(100) NOT NULL AFTER `email`,\nADD COLUMN `state` varchar(2) NOT NULL AFTER `city`,\nADD UNIQUE KEY `petition_signatures_cnf_unique` (`cnf`);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YRD47rk759bQ8C.root --database Uy2Bh4aWGeFtZA8ypA6NX3 --execute ALTER TABLE `petition_signatures` \nDROP COLUMN `phone`,\nDROP COLUMN `city`,\nDROP COLUMN `state`,\nADD COLUMN `city` varchar(100) NOT NULL AFTER `email`,\nADD COLUMN `state` varchar(2) NOT NULL AFTER `city`,\nADD UNIQUE KEY `petition_signatures_cnf_unique` (`cnf`);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1060 (42S21) at line 1: Duplicate column name 'city'"
+  ]
+}

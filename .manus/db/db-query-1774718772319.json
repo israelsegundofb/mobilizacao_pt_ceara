@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `petition_signatures` \nADD COLUMN `cnf` varchar(20) NOT NULL AFTER `fullName`;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2YRD47rk759bQ8C.root --database Uy2Bh4aWGeFtZA8ypA6NX3 --execute ALTER TABLE `petition_signatures` \nADD COLUMN `cnf` varchar(20) NOT NULL AFTER `fullName`;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 588
+}
