@@ -17,108 +17,97 @@ export default function Blog() {
   const hasMore = posts && posts.length === limit;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-red-950 via-red-900 to-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-red-900/30">
-        <div className="container flex items-center justify-between py-4">
+      <nav className="sticky top-0 z-50 bg-primary text-white shadow-md">
+        <div className="container mx-auto px-4 flex items-center justify-between py-4">
           <Link href="/">
-            <a className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">⭐</span>
+            <a className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                <span className="text-primary font-bold text-sm">⭐</span>
               </div>
-              <span className="font-bold text-lg">A Estrela do PT</span>
+              <span className="font-black uppercase tracking-tight text-lg">Blog da Luta</span>
             </a>
           </Link>
           <Link href="/">
-            <a className="text-red-400 hover:text-red-300 transition-colors">Voltar</a>
+            <a className="text-white/80 hover:text-white transition-colors text-sm font-black uppercase tracking-widest">Voltar</a>
           </Link>
         </div>
       </nav>
 
       {/* Header */}
-      <section className="py-16 px-4">
+      <section className="py-20 px-4 bg-secondary/20 border-b border-border">
         <div className="container max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-black mb-6">Blog</h1>
-          <p className="text-xl text-red-200">
-            Artigos, análises e reflexões sobre a luta política no Ceará
+          <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tighter uppercase">Artigos & Análises</h1>
+          <p className="text-xl text-foreground/60 max-w-2xl mx-auto leading-relaxed">
+            Reflexões profundas sobre a reconstrução do Partido dos Trabalhadores no Ceará e a nossa mobilização direta.
           </p>
         </div>
       </section>
 
       {/* Posts Grid */}
-      <section className="py-12 px-4">
+      <section className="py-16 px-4">
         <div className="container max-w-6xl mx-auto">
           {isLoading ? (
-            <p className="text-center text-red-200">Carregando posts...</p>
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              <p className="mt-4 text-foreground/40 font-black uppercase tracking-widest text-xs">Carregando conteúdo...</p>
+            </div>
           ) : posts && posts.length > 0 ? (
             <>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
                 {posts.map((post: any) => (
                   <Link key={post.id} href={`/blog/${post.slug}`}>
                     <a className="group">
-                      <Card className="bg-red-900/30 border-red-700/50 hover:border-red-500 transition-all h-full overflow-hidden cursor-pointer">
+                      <Card className="bg-white border border-border hover:border-primary transition-all h-full overflow-hidden cursor-pointer shadow-sm hover:shadow-xl rounded-2xl">
                         {/* Featured Image */}
                         {post.featuredImage && (
-                          <div className="w-full h-48 bg-red-800 overflow-hidden">
+                          <div className="w-full h-56 bg-secondary overflow-hidden">
                             <img
                               src={post.featuredImage}
                               alt={post.title}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             />
                           </div>
                         )}
 
                         {/* Content */}
-                        <div className="p-6">
+                        <div className="p-8">
                           {/* Category */}
-                          <div className="inline-block px-3 py-1 bg-red-600/20 border border-red-500/50 rounded-full mb-4">
-                            <span className="text-red-300 text-xs font-semibold">
+                          <div className="inline-block px-3 py-1 bg-primary/10 border border-primary/20 rounded-full mb-4">
+                            <span className="text-primary text-[10px] font-black uppercase tracking-widest">
                               {post.category}
                             </span>
                           </div>
 
                           {/* Title */}
-                          <h3 className="text-xl font-bold mb-3 line-clamp-2 group-hover:text-red-300 transition-colors">
+                          <h3 className="text-2xl font-black mb-4 line-clamp-2 leading-tight tracking-tight uppercase group-hover:text-primary transition-colors">
                             {post.title}
                           </h3>
 
-                          {/* Excerpt */}
-                          <p className="text-red-200 text-sm mb-4 line-clamp-3">
-                            {post.excerpt}
-                          </p>
-
                           {/* Meta */}
-                          <div className="space-y-2 text-xs text-red-300 mb-4">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-3 h-3" />
+                          <div className="flex items-center gap-4 text-[10px] font-bold text-foreground/40 mb-4 uppercase tracking-wider">
+                            <div className="flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5" />
                               <span>
                                 {new Date(post.publishedAt).toLocaleDateString("pt-BR")}
                               </span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <User className="w-3 h-3" />
+                            <div className="flex items-center gap-1.5 border-l border-border pl-4">
+                              <User className="w-3.5 h-3.5" />
                               <span>{post.author}</span>
                             </div>
                           </div>
 
-                          {/* Tags */}
-                          {post.tags && (
-                            <div className="flex flex-wrap gap-2 mb-4">
-                              {post.tags.split(",").slice(0, 2).map((tag: string) => (
-                                <span
-                                  key={tag.trim()}
-                                  className="text-xs px-2 py-1 bg-red-700/30 text-red-300 rounded"
-                                >
-                                  #{tag.trim()}
-                                </span>
-                              ))}
-                            </div>
-                          )}
+                          {/* Excerpt */}
+                          <p className="text-foreground/70 text-sm mb-6 line-clamp-3 leading-relaxed">
+                            {post.excerpt}
+                          </p>
 
-                          {/* Read More */}
-                          <div className="flex items-center gap-2 text-red-400 group-hover:text-red-300 transition-colors">
-                            <span className="text-sm font-semibold">Ler mais</span>
-                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          {/* Action */}
+                          <div className="flex items-center gap-2 text-primary group-hover:gap-3 transition-all">
+                            <span className="text-xs font-black uppercase tracking-widest">Continuar lendo</span>
+                            <ArrowRight className="w-4 h-4" />
                           </div>
                         </div>
                       </Card>
@@ -128,29 +117,31 @@ export default function Blog() {
               </div>
 
               {/* Pagination */}
-              <div className="flex justify-center gap-4">
+              <div className="flex justify-center items-center gap-6">
                 <Button
                   onClick={() => setPage(Math.max(0, page - 1))}
                   disabled={page === 0}
                   variant="outline"
+                  className="rounded-full px-6 uppercase font-black text-[10px] tracking-widest border-border hover:border-primary"
                 >
                   ← Anterior
                 </Button>
-                <span className="text-red-300">Página {page + 1}</span>
+                <span className="text-xs font-black uppercase tracking-widest text-foreground/40">Página {page + 1}</span>
                 <Button
                   onClick={() => setPage(page + 1)}
                   disabled={!hasMore}
                   variant="outline"
+                  className="rounded-full px-6 uppercase font-black text-[10px] tracking-widest border-border hover:border-primary"
                 >
                   Próxima →
                 </Button>
               </div>
             </>
           ) : (
-            <Card className="bg-red-900/30 border-red-700/50 p-12 text-center">
-              <p className="text-red-200 mb-4">Nenhum post publicado ainda</p>
-              <p className="text-red-300 text-sm">
-                Volte em breve para novas análises e artigos
+            <Card className="bg-secondary/10 border-2 border-dashed border-border p-20 text-center rounded-3xl">
+              <p className="text-foreground/60 text-xl font-bold mb-2">Nenhum post publicado ainda</p>
+              <p className="text-foreground/40 text-sm uppercase font-black tracking-widest">
+                Volte em breve para novas reflexões
               </p>
             </Card>
           )}
@@ -158,9 +149,9 @@ export default function Blog() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-black border-t border-red-900/30 py-12 px-4 mt-12">
-        <div className="container max-w-5xl mx-auto text-center text-red-400 text-sm">
-          <p>Mobilização Política • PT Ceará • 2026</p>
+      <footer className="bg-white border-t border-border py-16 px-4">
+        <div className="container max-w-5xl mx-auto text-center">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/30">Mobilização Política • PT Ceará • 2026</p>
         </div>
       </footer>
     </div>

@@ -43,7 +43,12 @@ export default function PetitionSignForm() {
       setTimeout(() => setSubmitted(false), 5000);
     },
     onError: (error: any) => {
-      setError(error.message || "Erro ao registrar assinatura. Tente novamente.");
+      const msg = error.message || "";
+      if (msg.includes("Unexpected token") || msg.includes("is not valid JSON") || msg.includes("Page Not Found")) {
+        setError("Este formulário requer um servidor ativo para processar os dados. No momento, você está na versão estática (GitHub). Por favor, utilize o link do Railway para assinar a petição.");
+      } else {
+        setError(msg || "Erro ao registrar assinatura. Tente novamente.");
+      }
     },
   });
 
@@ -89,37 +94,41 @@ export default function PetitionSignForm() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <Card className="bg-red-900/30 border-red-700/50 p-8">
-        <h3 className="text-2xl font-bold mb-2 text-red-300">Assine a Petição</h3>
-        <p className="text-red-200 mb-6">
+    <div className="w-full max-w-2xl mx-auto px-4">
+      <Card className="bg-white border border-border p-8 shadow-xl rounded-xl">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-1.5 h-8 bg-primary rounded-full" />
+          <h3 className="text-2xl font-black text-foreground uppercase tracking-tight">Assine a Petição</h3>
+        </div>
+        
+        <p className="text-foreground/70 mb-8 leading-relaxed">
           Registre seu apoio contra a descaracterização do PT no Ceará. Seus dados são confidenciais e usados apenas para esta mobilização.
         </p>
 
         {submitted && (
-          <div className="mb-6 p-4 bg-green-900/30 border border-green-700/50 rounded-lg flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
+            <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-green-300">Assinatura registrada com sucesso!</p>
-              <p className="text-sm text-green-200">Obrigado por apoiar a luta pelo PT autêntico.</p>
+              <p className="font-bold text-green-800">Assinatura registrada com sucesso!</p>
+              <p className="text-sm text-green-700">Obrigado por apoiar a luta pelo PT autêntico.</p>
             </div>
           </div>
         )}
 
         {error && (
-          <div className="mb-6 p-4 bg-red-900/30 border border-red-700/50 rounded-lg flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold text-red-300">Erro ao registrar</p>
-              <p className="text-sm text-red-200">{error}</p>
+              <p className="font-bold text-red-800 uppercase text-xs tracking-wider">Atenção</p>
+              <p className="text-sm text-red-700 leading-snug">{error}</p>
             </div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Nome Completo */}
-          <div>
-            <label className="block text-sm font-semibold text-red-300 mb-2">
+          <div className="space-y-2">
+            <label className="block text-xs font-black text-foreground/60 uppercase tracking-widest">
               Nome Completo *
             </label>
             <input
@@ -127,47 +136,49 @@ export default function PetitionSignForm() {
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
-              placeholder="Seu nome completo"
-              className="w-full px-4 py-2 bg-black/50 border border-red-700/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition-colors"
+              placeholder="Ex: João da Silva"
+              className="w-full px-4 py-3 bg-secondary/30 border border-border rounded-lg text-foreground placeholder-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
               required
             />
           </div>
 
-          {/* CNF */}
-          <div>
-            <label className="block text-sm font-semibold text-red-300 mb-2">
-              CNF (Cadastro Nacional de Filiação) *
-            </label>
-            <input
-              type="text"
-              name="cnf"
-              value={formData.cnf}
-              onChange={handleChange}
-              placeholder="Seu número de CNF"
-              className="w-full px-4 py-2 bg-black/50 border border-red-700/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition-colors"
-              required
-            />
-          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* CNF */}
+            <div className="space-y-2">
+              <label className="block text-xs font-black text-foreground/60 uppercase tracking-widest">
+                CNF (Cadastro Nacional) *
+              </label>
+              <input
+                type="text"
+                name="cnf"
+                value={formData.cnf}
+                onChange={handleChange}
+                placeholder="000.000.000"
+                className="w-full px-4 py-3 bg-secondary/30 border border-border rounded-lg text-foreground placeholder-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                required
+              />
+            </div>
 
-          {/* WhatsApp */}
-          <div>
-            <label className="block text-sm font-semibold text-red-300 mb-2">
-              WhatsApp *
-            </label>
-            <input
-              type="tel"
-              name="whatsapp"
-              value={formData.whatsapp}
-              onChange={handleChange}
-              placeholder="(85) 99999-9999"
-              className="w-full px-4 py-2 bg-black/50 border border-red-700/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition-colors"
-              required
-            />
+            {/* WhatsApp */}
+            <div className="space-y-2">
+              <label className="block text-xs font-black text-foreground/60 uppercase tracking-widest">
+                WhatsApp *
+              </label>
+              <input
+                type="tel"
+                name="whatsapp"
+                value={formData.whatsapp}
+                onChange={handleChange}
+                placeholder="(85) 99999-9999"
+                className="w-full px-4 py-3 bg-secondary/30 border border-border rounded-lg text-foreground placeholder-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                required
+              />
+            </div>
           </div>
 
           {/* Email */}
-          <div>
-            <label className="block text-sm font-semibold text-red-300 mb-2">
+          <div className="space-y-2">
+            <label className="block text-xs font-black text-foreground/60 uppercase tracking-widest">
               Email *
             </label>
             <input
@@ -175,16 +186,16 @@ export default function PetitionSignForm() {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="seu@email.com"
-              className="w-full px-4 py-2 bg-black/50 border border-red-700/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition-colors"
+              placeholder="seu@exemplo.com"
+              className="w-full px-4 py-3 bg-secondary/30 border border-border rounded-lg text-foreground placeholder-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
               required
             />
           </div>
 
           {/* Cidade e Estado */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="col-span-2">
-              <label className="block text-sm font-semibold text-red-300 mb-2">
+          <div className="grid grid-cols-3 gap-6">
+            <div className="col-span-2 space-y-2">
+              <label className="block text-xs font-black text-foreground/60 uppercase tracking-widest">
                 Cidade *
               </label>
               <input
@@ -193,22 +204,23 @@ export default function PetitionSignForm() {
                 value={formData.city}
                 onChange={handleChange}
                 placeholder="Sua cidade"
-                className="w-full px-4 py-2 bg-black/50 border border-red-700/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition-colors"
+                className="w-full px-4 py-3 bg-secondary/30 border border-border rounded-lg text-foreground placeholder-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
                 required
               />
             </div>
-            <div>
-              <label className="block text-sm font-semibold text-red-300 mb-2">
-                Estado *
+            <div className="space-y-2">
+              <label htmlFor="state-select" className="block text-xs font-black text-foreground/60 uppercase tracking-widest">
+                UF *
               </label>
               <select
+                id="state-select"
                 name="state"
                 value={formData.state}
                 onChange={handleChange}
-                className="w-full px-4 py-2 bg-black/50 border border-red-700/50 rounded-lg text-white focus:outline-none focus:border-red-500 transition-colors"
+                className="w-full px-4 py-3 bg-secondary/30 border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
                 required
               >
-                <option value="">Selecione</option>
+                <option value="">--</option>
                 {BRAZILIAN_STATES.map((state) => (
                   <option key={state} value={state}>
                     {state}
@@ -219,32 +231,32 @@ export default function PetitionSignForm() {
           </div>
 
           {/* Mensagem (Opcional) */}
-          <div>
-            <label className="block text-sm font-semibold text-red-300 mb-2">
-              Sua Mensagem (Opcional)
+          <div className="space-y-2">
+            <label className="block text-xs font-black text-foreground/60 uppercase tracking-widest">
+              Mensagem (Opcional)
             </label>
             <textarea
               name="message"
               value={formData.message}
               onChange={handleChange}
-              placeholder="Deixe sua mensagem de apoio..."
+              placeholder="Registre seu comentário..."
               rows={3}
-              className="w-full px-4 py-2 bg-black/50 border border-red-700/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition-colors resize-none"
+              className="w-full px-4 py-3 bg-secondary/30 border border-border rounded-lg text-foreground placeholder-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium resize-none"
             />
           </div>
 
           {/* Consentimento */}
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-4 p-4 bg-secondary/10 rounded-lg border border-border/50">
             <input
               type="checkbox"
               name="agreeToShare"
               id="agreeToShare"
               checked={formData.agreeToShare}
               onChange={handleChange}
-              className="mt-1"
+              className="mt-1 w-4 h-4 accent-primary"
             />
-            <label htmlFor="agreeToShare" className="text-sm text-red-200">
-              Concordo que meu nome e cidade possam ser compartilhados publicamente como apoiador(a) desta mobilização.
+            <label htmlFor="agreeToShare" className="text-xs text-foreground/70 leading-normal font-medium">
+              Concordo que meu nome e cidade possam ser compartilhados publicamente como apoiador(a) desta mobilização nacional.
             </label>
           </div>
 
@@ -252,13 +264,13 @@ export default function PetitionSignForm() {
           <Button
             type="submit"
             disabled={signMutation.isPending}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-primary hover:bg-primary/90 text-white font-black py-6 rounded-lg transition-all shadow-lg hover:shadow-primary/20 disabled:opacity-50 uppercase tracking-widest text-sm"
           >
-            {signMutation.isPending ? "Registrando..." : "Assinar Petição"}
+            {signMutation.isPending ? "Processando..." : "ASSINAR PETIÇÃO AGORA"}
           </Button>
 
-          <p className="text-xs text-gray-400 text-center">
-            * Campos obrigatórios
+          <p className="text-[10px] text-foreground/40 text-center uppercase font-bold tracking-tighter">
+            * Seus dados estão protegidos pela LGPD e serão usados apenas para esta mobilização.
           </p>
         </form>
       </Card>

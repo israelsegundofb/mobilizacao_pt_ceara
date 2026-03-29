@@ -35,34 +35,37 @@ export default function BlogPost() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-red-950 via-red-900 to-black text-white flex items-center justify-center">
-        <p>Carregando post...</p>
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <p className="mt-4 font-black uppercase tracking-widest text-xs opacity-40">Abrindo artigo...</p>
+        </div>
       </div>
     );
   }
 
   if (!post) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-red-950 via-red-900 to-black text-white">
-        <nav className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-red-900/30">
-          <div className="container flex items-center justify-between py-4">
+      <div className="min-h-screen bg-background text-foreground">
+        <nav className="sticky top-0 z-50 bg-primary text-white shadow-md">
+          <div className="container mx-auto px-4 flex items-center justify-between py-4">
             <Link href="/">
-              <a className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">⭐</span>
+              <a className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                  <span className="text-primary font-bold text-sm">⭐</span>
                 </div>
-                <span className="font-bold text-lg">A Estrela do PT</span>
+                <span className="font-black uppercase tracking-tight text-lg">Blog da Luta</span>
               </a>
             </Link>
           </div>
         </nav>
 
-        <div className="container max-w-4xl mx-auto py-20 text-center">
-          <h1 className="text-3xl font-bold mb-4">Post não encontrado</h1>
-          <p className="text-red-200 mb-8">O post que você está procurando não existe.</p>
+        <div className="container max-w-4xl mx-auto py-32 text-center">
+          <h1 className="text-4xl font-black mb-4 uppercase tracking-tighter">Post não encontrado</h1>
+          <p className="text-foreground/40 mb-12 font-medium">O conteúdo que você procura pode ter sido removido ou o link está incorreto.</p>
           <Link href="/blog">
             <a>
-              <Button className="bg-red-600 hover:bg-red-700">Voltar ao Blog</Button>
+              <Button className="bg-primary hover:bg-primary/90 font-black uppercase tracking-widest text-xs px-8 py-6 rounded-full shadow-lg">Retornar ao Blog</Button>
             </a>
           </Link>
         </div>
@@ -71,27 +74,27 @@ export default function BlogPost() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-red-950 via-red-900 to-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-red-900/30">
-        <div className="container flex items-center justify-between py-4">
+      <nav className="sticky top-0 z-50 bg-primary text-white shadow-md">
+        <div className="container mx-auto px-4 flex items-center justify-between py-4">
           <Link href="/">
-            <a className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">⭐</span>
+            <a className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                <span className="text-primary font-bold text-sm">⭐</span>
               </div>
-              <span className="font-bold text-lg">A Estrela do PT</span>
+              <span className="font-black uppercase tracking-tight text-lg">Blog da Luta</span>
             </a>
           </Link>
           <Link href="/blog">
-            <a className="text-red-400 hover:text-red-300 transition-colors">← Blog</a>
+            <a className="text-white/80 hover:text-white transition-colors text-xs font-black uppercase tracking-widest">← Voltar</a>
           </Link>
         </div>
       </nav>
 
       {/* Featured Image */}
       {post.featuredImage && (
-        <div className="w-full h-96 bg-red-800 overflow-hidden">
+        <div className="w-full h-[500px] bg-secondary overflow-hidden border-b border-border">
           <img
             src={post.featuredImage}
             alt={post.title}
@@ -101,62 +104,62 @@ export default function BlogPost() {
       )}
 
       {/* Post Content */}
-      <article className="py-12 px-4">
+      <article className="py-20 px-4">
         <div className="container max-w-3xl mx-auto">
           {/* Category */}
-          <div className="inline-block px-4 py-2 bg-red-600/20 border border-red-500/50 rounded-full mb-6">
-            <span className="text-red-300 text-sm font-semibold">
+          <div className="inline-block px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full mb-8">
+            <span className="text-primary text-[10px] font-black uppercase tracking-widest">
               {post.category}
             </span>
           </div>
 
           {/* Title */}
-          <h1 className="text-5xl md:text-6xl font-black mb-6 leading-tight">
+          <h1 className="text-5xl md:text-7xl font-black mb-10 leading-[0.9] tracking-tighter uppercase text-foreground">
             {post.title}
           </h1>
 
           {/* Meta Information */}
-          <div className="flex flex-wrap gap-6 text-red-300 mb-8 pb-8 border-b border-red-900/30">
+          <div className="flex flex-wrap items-center gap-6 text-[10px] font-black uppercase tracking-widest text-foreground/40 mb-12 pb-12 border-b border-border">
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
+              <Calendar className="w-4 h-4 text-primary" />
               <span>
                 {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString("pt-BR", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
-                }) : "Data desconhecida"}
+                }) : "Data pendente"}
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4" />
+            <div className="flex items-center gap-2 border-l border-border pl-6">
+              <User className="w-4 h-4 text-primary" />
               <span>{post.author}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span>👁️ {post.views} visualizações</span>
+            <div className="flex items-center gap-2 border-l border-border pl-6">
+              <span>{post.views} visualizações</span>
             </div>
             <Button
               onClick={handleShare}
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="ml-auto"
+              className="ml-auto hover:bg-secondary/50 text-[10px] font-black uppercase tracking-widest gap-2"
             >
-              <Share2 className="w-4 h-4 mr-2" />
+              <Share2 className="w-3.5 h-3.5" />
               Compartilhar
             </Button>
           </div>
 
           {/* Content */}
-          <div className="prose prose-invert max-w-none mb-12">
+          <div className="prose prose-lg prose-red max-w-none mb-20 text-foreground/80 leading-relaxed font-serif">
             <Streamdown>{post.content}</Streamdown>
           </div>
 
           {/* Tags */}
           {post.tags && (
-            <div className="flex flex-wrap gap-3 py-8 border-t border-red-900/30">
+            <div className="flex flex-wrap gap-2 py-10 border-t border-border mb-12">
               {post.tags.split(",").map((tag: string) => (
                 <Link key={tag.trim()} href={`/blog?tag=${encodeURIComponent(tag.trim())}`}>
-                  <a className="inline-flex items-center gap-2 px-4 py-2 bg-red-700/30 hover:bg-red-700/50 text-red-300 rounded-full transition-colors">
-                    <Tag className="w-4 h-4" />
+                  <a className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/50 hover:bg-primary/10 hover:text-primary text-[10px] font-black uppercase tracking-widest rounded-full transition-all border border-border">
+                    <Tag className="w-3 h-3" />
                     {tag.trim()}
                   </a>
                 </Link>
@@ -165,32 +168,34 @@ export default function BlogPost() {
           )}
 
           {/* Author Bio */}
-          <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-6 mt-12">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-bold">
+          <div className="bg-secondary/20 border border-border rounded-2xl p-8 mb-20">
+            <div className="flex items-start gap-6">
+              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                <span className="text-white font-black text-2xl">
                   {post.author.charAt(0).toUpperCase()}
                 </span>
               </div>
-              <div>
-                <h3 className="font-bold text-lg mb-1">{post.author}</h3>
-                <p className="text-red-200 text-sm">
-                  Autor de artigos sobre política e mobilização no Ceará
+              <div className="pt-2">
+                <h3 className="font-black uppercase tracking-tight text-xl mb-2">{post.author}</h3>
+                <p className="text-foreground/60 text-sm leading-relaxed max-w-md">
+                  Voz ativa na defesa dos direitos sociais e na reconstrução do PT Ceará. Autor de análises críticas e mobilização popular.
                 </p>
               </div>
             </div>
           </div>
 
           {/* Comments Section */}
-          <CommentSection postId={post.id} />
+          <div className="bg-white p-2 rounded-2xl">
+            <CommentSection postId={post.id} />
+          </div>
 
           {/* Related Posts */}
-          <div className="mt-16 pt-12 border-t border-red-900/30">
-            <h2 className="text-2xl font-bold mb-6">Leia também</h2>
+          <div className="mt-24 pt-16 border-t border-border flex flex-col items-center">
+            <h2 className="text-3xl font-black uppercase tracking-tighter mb-8">Quer ler mais?</h2>
             <Link href="/blog">
               <a>
-                <Button className="bg-red-600 hover:bg-red-700">
-                  Voltar ao Blog
+                <Button className="bg-primary hover:bg-primary/90 font-black uppercase tracking-widest text-xs px-10 py-8 rounded-full shadow-xl">
+                  Explorar todos os artigos
                 </Button>
               </a>
             </Link>
@@ -199,9 +204,9 @@ export default function BlogPost() {
       </article>
 
       {/* Footer */}
-      <footer className="bg-black border-t border-red-900/30 py-12 px-4">
-        <div className="container max-w-5xl mx-auto text-center text-red-400 text-sm">
-          <p>Mobilização Política • PT Ceará • 2026</p>
+      <footer className="bg-white border-t border-border py-20 px-4">
+        <div className="container max-w-5xl mx-auto text-center">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground/20">Mobilização Política • PT Ceará • 2026</p>
         </div>
       </footer>
     </div>

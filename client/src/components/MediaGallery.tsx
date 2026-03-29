@@ -5,11 +5,11 @@ import { PlayCircle, Image as ImageIcon } from "lucide-react";
 export default function MediaGallery() {
   const { data: media, isLoading } = trpc.gallery.getAll.useQuery();
 
-  if (isLoading) {
+   if (isLoading) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-8">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="aspect-square bg-red-900/10 animate-pulse rounded-lg border border-red-900/30"></div>
+          <div key={i} className="aspect-square bg-secondary/50 animate-pulse rounded-xl border border-border"></div>
         ))}
       </div>
     );
@@ -17,8 +17,9 @@ export default function MediaGallery() {
 
   if (!media || media.length === 0) {
     return (
-      <div className="text-center py-12 bg-red-900/10 rounded-lg border border-red-900/30 border-dashed">
-        <p className="text-red-300">Nenhuma foto ou vídeo na galeria ainda.</p>
+      <div className="text-center py-16 bg-secondary/20 rounded-xl border-2 border-dashed border-border">
+        <ImageIcon className="w-12 h-12 text-foreground/20 mx-auto mb-4" />
+        <p className="text-foreground/40 font-bold uppercase tracking-widest text-sm">Nenhum registro na galeria ainda.</p>
       </div>
     );
   }
@@ -38,35 +39,36 @@ export default function MediaGallery() {
   };
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 py-8">
+    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 py-8">
       {media.map((item) => (
-        <Card key={item.id} className="group overflow-hidden bg-red-950 border-red-800 hover:border-red-500 transition-all cursor-pointer">
-          <div className="aspect-square relative">
+        <Card key={item.id} className="group overflow-hidden bg-white border border-border hover:border-primary transition-all cursor-pointer shadow-sm hover:shadow-xl rounded-xl">
+          <div className="aspect-square relative flex items-center justify-center bg-secondary/10">
             {item.type === "video" ? (
-              <div className="w-full h-full flex flex-col items-center justify-center bg-black/60">
+              <div className="w-full h-full flex flex-col items-center justify-center bg-black">
                 <iframe
                   src={getEmbedUrl(item.url)}
+                  title={item.caption || "Vídeo da galeria"}
                   className="w-full h-full pointer-events-none group-hover:pointer-events-auto"
                   frameBorder="0"
                   allowFullScreen
                 ></iframe>
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:hidden transition-all pointer-events-none">
-                  <PlayCircle className="w-12 h-12 text-red-500" />
+                  <PlayCircle className="w-16 h-16 text-white drop-shadow-lg" />
                 </div>
               </div>
             ) : (
               <img 
                 src={item.url} 
-                alt={item.caption || ""} 
-                className="w-full h-full object-cover transition-transform group-hover:scale-110" 
+                alt={item.caption || "Imagem da galeria"} 
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
               />
             )}
             
-            {/* Caption on Hover */}
-            <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+            {/* Caption Overlay */}
+            <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <div className="flex items-center gap-2">
-                {item.type === "video" ? <PlayCircle className="w-4 h-4 text-red-400" /> : <ImageIcon className="w-4 h-4 text-red-400" />}
-                <p className="text-xs text-white truncate font-medium">{item.caption || (item.type === "video" ? "Vídeo" : "Imagem")}</p>
+                {item.type === "video" ? <PlayCircle className="w-4 h-4 text-white" /> : <ImageIcon className="w-4 h-4 text-white" />}
+                <p className="text-xs text-white truncate font-black uppercase tracking-wider">{item.caption || (item.type === "video" ? "Vídeo Resistance" : "Foto da Luta")}</p>
               </div>
             </div>
           </div>
