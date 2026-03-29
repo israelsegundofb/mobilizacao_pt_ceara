@@ -59,7 +59,7 @@ export default function BlogPost() {
                 <span className="font-black uppercase tracking-tight text-lg">Blog da Luta</span>
               </a>
             </Link>
-            <Link href="/admin">
+            <Link href="/login">
               <a className="flex items-center gap-2 bg-white text-primary hover:bg-white/90 px-3 py-1.5 rounded-md transition-all text-[10px] font-black uppercase tracking-widest shadow-sm">
                 <LogIn className="w-3 h-3" />
                 {isAuthenticated ? "Painel" : "Entrar"}
@@ -97,7 +97,7 @@ export default function BlogPost() {
           <Link href="/blog">
             <a className="text-white/80 hover:text-white transition-colors text-xs font-black uppercase tracking-widest">← Voltar</a>
           </Link>
-          <Link href="/admin">
+          <Link href="/login">
             <a className="flex items-center gap-2 bg-white text-primary hover:bg-white/90 px-3 py-1.5 rounded-md transition-all text-[10px] font-black uppercase tracking-widest shadow-sm">
               <LogIn className="w-3 h-3" />
               {isAuthenticated ? "Painel" : "Entrar"}

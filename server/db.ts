@@ -89,6 +89,40 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return undefined;
+  }
+
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getAllUsers() {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    return await db.select().from(users).orderBy(desc(users.createdAt));
+  } catch (error) {
+    console.error("[Database] Failed to get all users:", error);
+    return [];
+  }
+}
+
+export async function deleteUser(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  try {
+    await db.delete(users).where(eq(users.id, id));
+  } catch (error) {
+    console.error("[Database] Failed to delete user:", error);
+    throw error;
+  }
+}
+
 // Petition signatures queries
 export async function addPetitionSignature(signature: InsertPetitionSignature) {
   const db = await getDb();
@@ -412,6 +446,28 @@ export async function getBlogComments(postId: number, publishedOnly = true) {
   }
 }
 
+export async function getAllBlogComments() {
+  const db = await getDb();
+  if (!db) return [];
+  try {
+    return await db.select().from(blogComments).orderBy(desc(blogComments.createdAt));
+  } catch (error) {
+    console.error("[Database] Failed to get all blog comments:", error);
+    return [];
+  }
+}
+
+export async function deleteBlogComment(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  try {
+    await db.delete(blogComments).where(eq(blogComments.id, id));
+  } catch (error) {
+    console.error("[Database] Failed to delete blog comment:", error);
+    throw error;
+  }
+}
+
 export async function updateBlogComment(id: number, data: Partial<InsertBlogComment>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -446,6 +502,17 @@ export async function getMediaItems() {
   }
 }
 
+export async function deleteMediaItem(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  try {
+    await db.delete(mediaItems).where(eq(mediaItems.id, id));
+  } catch (error) {
+    console.error("[Database] Failed to delete media item:", error);
+    throw error;
+  }
+}
+
 // Timeline Events
 export async function addTimelineEvent(event: InsertTimelineEvent) {
   const db = await getDb();
@@ -466,5 +533,16 @@ export async function getTimelineEvents() {
   } catch (error) {
     console.error("[Database] Failed to get timeline events:", error);
     return [];
+  }
+}
+
+export async function deleteTimelineEvent(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  try {
+    await db.delete(timelineEvents).where(eq(timelineEvents.id, id));
+  } catch (error) {
+    console.error("[Database] Failed to delete timeline event:", error);
+    throw error;
   }
 }

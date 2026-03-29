@@ -65,9 +65,18 @@ export function useAuth(options?: UseAuthOptions) {
     if (meQuery.isLoading || logoutMutation.isPending) return;
     if (state.user) return;
     if (typeof window === "undefined") return;
-    if (window.location.pathname === redirectPath) return;
 
-    window.location.href = redirectPath
+    // Ajustar o path de redirecionamento para o ambiente (e.g. GitHub Pages)
+    const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+    const fullRedirectPath = redirectPath.startsWith(base) ? redirectPath : `${base}${redirectPath}`;
+    
+    // Comparar se já estamos no path de destino (removendo trailing slash)
+    const currentPath = window.location.pathname.replace(/\/$/, "");
+    const targetPath = fullRedirectPath.replace(/\/$/, "");
+    
+    if (currentPath === targetPath) return;
+
+    window.location.href = fullRedirectPath;
   }, [
     redirectOnUnauthenticated,
     redirectPath,

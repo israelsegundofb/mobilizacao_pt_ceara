@@ -11,9 +11,19 @@ import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { 
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger 
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Shield, UserPlus, Trash } from "lucide-react";
 
 export default function AdminDashboard() {
-  const { user, loading, logout } = useAuth();
+  const { user, loading, logout } = useAuth({
+    redirectOnUnauthenticated: true,
+    redirectPath: "/login"
+  });
   const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
 
@@ -23,6 +33,9 @@ export default function AdminDashboard() {
   const { data: comments = [], isLoading: isLoadingComments } = trpc.blog.getAllComments.useQuery();
   const { data: gallery = [], isLoading: isLoadingGallery } = trpc.gallery.getAll.useQuery();
   const { data: timeline = [], isLoading: isLoadingTimeline } = trpc.timeline.getAll.useQuery();
+  const { data: team = [], isLoading: isLoadingTeam } = trpc.adminUsers.list.useQuery(undefined, {
+    enabled: user?.role === 'admin'
+  });
 
   // Mutations
   const approveComment = trpc.blog.approveComment.useMutation({
@@ -60,6 +73,35 @@ export default function AdminDashboard() {
     }
   });
 
+  const createUser = trpc.adminUsers.create.useMutation({
+    onSuccess: () => {
+      toast.success("Colaborador adicionado com sucesso!");
+      utils.adminUsers.list.invalidate();
+    },
+    onError: (err) => {
+      toast.error(err.message || "Erro ao adicionar colaborador.");
+    }
+  });
+
+  const deleteUser = trpc.adminUsers.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Acesso removido.");
+      utils.adminUsers.list.invalidate();
+    }
+  });
+
+  // State for new user modal
+  const [newUser, setNewUser] = useState({ name: "", email: "", password: "", role: "editor" as "admin" | "editor" });
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+
+  const handleCreateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newUser.name || !newUser.email || !newUser.password) return;
+    createUser.mutate(newUser);
+    setNewUser({ name: "", email: "", password: "", role: "editor" });
+    setIsUserModalOpen(false);
+  };
+
   const deleteTimelineEvent = trpc.timeline.delete.useMutation({
     onSuccess: () => {
       toast.success("Evento removido da timeline!");
@@ -67,9 +109,9 @@ export default function AdminDashboard() {
     }
   });
 
-  // Redirect if not admin
+  // Redirect if not authorized
   useEffect(() => {
-    if (!loading && (!user || user.role !== "admin")) {
+    if (!loading && (!user || (user.role !== "admin" && user.role !== "editor"))) {
       setLocation("/");
     }
   }, [user, loading, setLocation]);
@@ -132,6 +174,9 @@ export default function AdminDashboard() {
             <TabsTrigger value="comments" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"><MessageSquare className="w-4 h-4" /> Comentários</TabsTrigger>
             <TabsTrigger value="gallery" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"><ImageIcon className="w-4 h-4" /> Galeria</TabsTrigger>
             <TabsTrigger value="timeline" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"><Calendar className="w-4 h-4" /> Timeline</TabsTrigger>
+            {user?.role === 'admin' && (
+              <TabsTrigger value="team" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-white"><Shield className="w-4 h-4" /> Equipe</TabsTrigger>
+            )}
           </TabsList>
 
           {/* Signatures Tab */}
@@ -301,7 +346,7 @@ export default function AdminDashboard() {
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 p-6">
                     {gallery.map(item => (
                       <div key={item.id} className="relative group aspect-square rounded-xl overflow-hidden bg-secondary/20 border border-border">
-                        {item.type === 'photo' ? (
+                        {item.type === 'image' ? (
                           <img src={item.url} alt={item.caption || "Item da galeria"} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex flex-col items-center justify-center text-primary">
@@ -336,7 +381,7 @@ export default function AdminDashboard() {
                     addTimelineEvent.mutate({
                       title: formData.get("title") as string,
                       description: formData.get("description") as string,
-                      eventDate: new Date(formData.get("date") as string)
+                      eventDate: formData.get("date") as string
                     });
                     (e.target as HTMLFormElement).reset();
                   }}>
@@ -371,6 +416,133 @@ export default function AdminDashboard() {
                 </div>
               </Card>
             </div>
+          </TabsContent>
+          {/* Team Tab */}
+          <TabsContent value="team">
+            <Card className="bg-white border border-border overflow-hidden shadow-sm">
+              <div className="p-6 border-b border-border flex justify-between items-center bg-secondary/10">
+                <div>
+                  <h2 className="text-xl font-black uppercase tracking-tight">Equipe de Colaboradores</h2>
+                  <p className="text-sm text-foreground/60 mt-1 font-medium">{team.length} usuários registrados</p>
+                </div>
+                
+                <Dialog open={isUserModalOpen} onOpenChange={setIsUserModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="gap-2 bg-primary hover:bg-primary/90 font-bold uppercase tracking-widest text-xs">
+                      <UserPlus className="w-4 h-4" /> Novo Colaborador
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Adicionar Colaborador</DialogTitle>
+                      <DialogDescription>
+                        Crie um acesso para um novo membro da equipe.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleCreateUser} className="space-y-4 py-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="name">Nome Completo</Label>
+                        <Input 
+                          id="name" 
+                          value={newUser.name} 
+                          onChange={e => setNewUser({...newUser, name: e.target.value})}
+                          placeholder="Ex: João da Silva" 
+                          required 
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="email">Email / Usuário</Label>
+                        <Input 
+                          id="email" 
+                          type="email"
+                          value={newUser.email} 
+                          onChange={e => setNewUser({...newUser, email: e.target.value})}
+                          placeholder="joao@mobiliza.pt" 
+                          required 
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="password">Senha Inicial</Label>
+                        <Input 
+                          id="password" 
+                          type="password"
+                          value={newUser.password} 
+                          onChange={e => setNewUser({...newUser, password: e.target.value})}
+                          placeholder="••••••••" 
+                          required 
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="role">Cargo</Label>
+                        <Select 
+                          value={newUser.role} 
+                          onValueChange={(val: any) => setNewUser({...newUser, role: val})}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o cargo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="editor">Editor (Blog/Galeria)</SelectItem>
+                            <SelectItem value="admin">Administrador (Total)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <DialogFooter className="pt-4">
+                        <Button type="submit" disabled={createUser.isPending}>
+                          {createUser.isPending ? "Criando..." : "Criar Acesso"}
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-secondary/20 border-b border-border">
+                    <tr>
+                      <th className="px-6 py-4 text-left font-black uppercase tracking-widest text-[10px] opacity-70 text-foreground/80">Nome</th>
+                      <th className="px-6 py-4 text-left font-black uppercase tracking-widest text-[10px] opacity-70 text-foreground/80">Email</th>
+                      <th className="px-6 py-4 text-left font-black uppercase tracking-widest text-[10px] opacity-70 text-foreground/80">Cargo</th>
+                      <th className="px-6 py-4 text-right font-black uppercase tracking-widest text-[10px] opacity-70 text-foreground/80">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {team.map((u) => (
+                      <tr key={u.id} className="hover:bg-secondary/5 transition-colors">
+                        <td className="px-6 py-4 font-bold text-[#313131] uppercase tracking-tight">{u.name}</td>
+                        <td className="px-6 py-4 font-medium text-muted-foreground">{u.email}</td>
+                        <td className="px-6 py-4">
+                          <span className={`px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm ${
+                            u.role === 'admin' ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-green-100 text-green-700 border border-green-200'
+                          }`}>
+                            {u.role}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          {u.openId !== 'israel_franca' && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => deleteUser.mutate({ id: u.id })}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {team.length === 0 && !isLoadingTeam && (
+                  <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+                    <Users className="w-12 h-12 mb-4 opacity-20" />
+                    <p className="font-bold uppercase tracking-widest text-xs opacity-50">Nenhum colaborador encontrado</p>
+                  </div>
+                )}
+              </div>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>

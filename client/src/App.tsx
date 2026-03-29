@@ -10,6 +10,7 @@ import BlogPost from "./pages/BlogPost";
 import AdminDashboard from "./pages/AdminDashboard";
 import ContentEditor from "./pages/ContentEditor";
 import BlogManagement from "./pages/BlogManagement";
+import Login from "./pages/Login";
 
 function Router() {
   // Use the base URL from Vite to support GitHub Pages subfolders
@@ -24,6 +25,7 @@ function Router() {
         <Route path={"/admin"} component={AdminDashboard} />
         <Route path={"/admin/content"} component={ContentEditor} />
         <Route path={"/admin/blog"} component={BlogManagement} />
+        <Route path={"/login"} component={Login} />
         <Route path={"/404"} component={NotFound} />
         {/* Final fallback route */}
         <Route component={NotFound} />

@@ -1,11 +1,12 @@
-import { COOKIE_NAME } from "@shared/const";
+import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { addPetitionSignature, getPetitionSignatures, getPetitionSignatureCount, getSiteContent, getSiteContentBySection, updateSiteContent, createBlogPost, updateBlogPost, deleteBlogPost, getBlogPostById, getBlogPostBySlug, getPublishedBlogPosts, getAllBlogPosts, getBlogPostsByCategory, incrementBlogPostViews, addNewsletterSubscriber, getNewsletterSubscribers, addBlogComment, getBlogComments, updateBlogComment, addMediaItem, getMediaItems, addTimelineEvent, getTimelineEvents } from "./db";
+import * as db from "./db";
 import { sendNewsletterPostNotification } from "./email";
 import { protectedProcedure } from "./_core/trpc";
+import { sdk } from "./_core/sdk";
 import { fetchInstagramFeedCached } from "./instagram-scraper";
 
 export const appRouter = router({
@@ -25,6 +26,54 @@ export const appRouter = router({
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+    
+    login: publicProcedure
+      .input(z.object({
+        username: z.string(),
+        password: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Obter usuário do banco ou validar credencial mestre 'israel_franca'
+        let user = await db.getUserByEmail(input.username);
+        if (!user) {
+          user = await db.getUserByOpenId(input.username); // Fallback para username como openId
+        }
+
+        const isMaster = input.username === 'israel_franca' && input.password === '@Estrat13#Luta';
+        
+        if (!isMaster && (!user || user.password !== input.password)) {
+          throw new Error('Credenciais inválidas');
+        }
+
+        // Se for o mestre e não existir no DB, cria agora
+        if (isMaster && !user) {
+          await db.upsertUser({
+            openId: 'israel_franca', // Username as openId for simplicity
+            name: 'Israel França',
+            email: 'israel@mobiliza.pt',
+            password: '@Estrat13#Luta',
+            role: 'admin',
+          });
+          user = await db.getUserByOpenId('israel_franca');
+        }
+
+        if (!user) throw new Error('Falha ao autenticar usuário');
+
+        // Criar token de sessão (JWT)
+        const sessionToken = await sdk.createSessionToken(user.openId!, {
+          name: user.name || 'Admin',
+        });
+
+        // Configurar Cookie
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, sessionToken, {
+          ...cookieOptions,
+          maxAge: ONE_YEAR_MS,
+        });
+
+        return { success: true, user };
+      }),
+
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
@@ -34,15 +83,53 @@ export const appRouter = router({
     }),
   }),
 
+  // Router para gestão de equipe (Admin Only)
+  adminUsers: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') throw new Error('Unauthorized');
+      return await db.getAllUsers();
+    }),
+    
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string(),
+        email: z.string().email(),
+        password: z.string(),
+        role: z.enum(['admin', 'editor']),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new Error('Unauthorized');
+        
+        // No manual login, usamos o email como openId único
+        await db.upsertUser({
+          openId: input.email,
+          name: input.name,
+          email: input.email,
+          password: input.password,
+          role: input.role,
+        });
+        
+        return { success: true };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new Error('Unauthorized');
+        await db.deleteUser(input.id);
+        return { success: true };
+      }),
+  }),
+
   content: router({
     getAll: publicProcedure.query(async () => {
-      const content = await getSiteContent();
+      const content = await db.getSiteContent();
       return content;
     }),
     getBySection: publicProcedure
       .input(z.object({ section: z.string() }))
       .query(async ({ input }) => {
-        const content = await getSiteContentBySection(input.section);
+        const content = await db.getSiteContentBySection(input.section);
         return content;
       }),
     update: protectedProcedure
@@ -52,11 +139,11 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         // Apenas admin pode atualizar conteúdo
-        if (ctx.user?.role !== 'admin') {
+        if (ctx.user?.role !== 'admin' && ctx.user?.role !== 'editor') {
           throw new Error('Unauthorized');
         }
         
-        const result = await updateSiteContent(input.key, input.value);
+        const result = await db.updateSiteContent(input.key, input.value);
         return result;
       }),
   }),
@@ -73,7 +160,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         try {
-          const result = await addPetitionSignature({
+          const result = await db.addPetitionSignature({
             fullName: input.fullName,
             cnf: input.cnf,
             whatsapp: input.whatsapp,
@@ -92,12 +179,12 @@ export const appRouter = router({
       if (ctx.user?.role !== 'admin') {
         throw new Error('Unauthorized');
       }
-      const signatures = await getPetitionSignatures();
+      const signatures = await db.getPetitionSignatures();
       return signatures;
     }),
 
     getCount: publicProcedure.query(async () => {
-      const count = await getPetitionSignatureCount();
+      const count = await db.getPetitionSignatureCount();
       return count;
     }),
   }),
@@ -114,10 +201,10 @@ export const appRouter = router({
         featuredImage: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
-        if (ctx.user?.role !== 'admin') {
+        if (ctx.user?.role !== 'admin' && ctx.user?.role !== 'editor') {
           throw new Error('Unauthorized');
         }
-        await createBlogPost({
+        await db.createBlogPost({
           title: input.title,
           slug: input.slug,
           excerpt: input.excerpt,
@@ -144,17 +231,17 @@ export const appRouter = router({
         published: z.boolean().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
-        if (ctx.user?.role !== 'admin') {
+        if (ctx.user?.role !== 'admin' && ctx.user?.role !== 'editor') {
           throw new Error('Unauthorized');
         }
         const { id, ...data } = input;
         
         // Se o post está sendo publicado agora, notifica a newsletter
         if (data.published === true) {
-          const currentPost = await getBlogPostById(id);
+          const currentPost = await db.getBlogPostById(id);
           if (currentPost && !currentPost.published) {
-            const subscribers = await getNewsletterSubscribers();
-            const activeEmails = subscribers.filter(s => s.active).map(s => s.email);
+            const subscribers = await db.getNewsletterSubscribers();
+            const activeEmails = subscribers.filter((s: any) => s.active).map((s: any) => s.email);
             
             // Disparo assíncrono para não travar a resposta da API
             sendNewsletterPostNotification({
@@ -165,17 +252,17 @@ export const appRouter = router({
           }
         }
 
-        await updateBlogPost(id, data);
+        await db.updateBlogPost(id, data);
         return { success: true };
       }),
 
     delete: protectedProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input, ctx }) => {
-        if (ctx.user?.role !== 'admin') {
+        if (ctx.user?.role !== 'admin' && ctx.user?.role !== 'editor') {
           throw new Error('Unauthorized');
         }
-        await deleteBlogPost(input.id);
+        await db.deleteBlogPost(input.id);
         return { success: true };
       }),
 
@@ -183,21 +270,21 @@ export const appRouter = router({
       if (ctx.user?.role !== 'admin') {
         throw new Error('Unauthorized');
       }
-      return await getAllBlogPosts();
+      return await db.getAllBlogPosts();
     }),
 
     getPublished: publicProcedure
       .input(z.object({ limit: z.number().default(10), offset: z.number().default(0) }))
       .query(async ({ input }) => {
-        return await getPublishedBlogPosts(input.limit, input.offset);
+        return await db.getPublishedBlogPosts(input.limit, input.offset);
       }),
 
     getBySlug: publicProcedure
       .input(z.object({ slug: z.string() }))
       .query(async ({ input }) => {
-        const post = await getBlogPostBySlug(input.slug);
+        const post = await db.getBlogPostBySlug(input.slug);
         if (post) {
-          await incrementBlogPostViews(post.id);
+          await db.incrementBlogPostViews(post.id);
         }
         return post;
       }),
@@ -205,7 +292,7 @@ export const appRouter = router({
     getByCategory: publicProcedure
       .input(z.object({ category: z.string(), limit: z.number().default(10) }))
       .query(async ({ input }) => {
-        return await getBlogPostsByCategory(input.category, input.limit);
+        return await db.getBlogPostsByCategory(input.category, input.limit);
       }),
 
     addComment: publicProcedure
@@ -215,7 +302,7 @@ export const appRouter = router({
         content: z.string().min(2),
       }))
       .mutation(async ({ input }) => {
-        await addBlogComment({
+        await db.addBlogComment({
           postId: input.postId,
           authorName: input.authorName,
           content: input.content,
@@ -228,14 +315,28 @@ export const appRouter = router({
       .input(z.object({ postId: z.number(), admin: z.boolean().default(false) }))
       .query(async ({ input, ctx }) => {
         const showAll = input.admin && ctx.user?.role === 'admin';
-        return await getBlogComments(input.postId, !showAll);
+        return await db.getBlogComments(input.postId, !showAll);
       }),
 
-    updateComment: protectedProcedure
-      .input(z.object({ id: z.number(), published: z.boolean() }))
+    getAllComments: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') throw new Error('Unauthorized');
+      // No db.ts, precisamos de uma função que pegue TODOS os comentários
+      return await db.getAllBlogComments();
+    }),
+
+    approveComment: protectedProcedure
+      .input(z.object({ id: z.number() }))
       .mutation(async ({ input, ctx }) => {
         if (ctx.user?.role !== 'admin') throw new Error('Unauthorized');
-        await updateBlogComment(input.id, { published: input.published });
+        await db.updateBlogComment(input.id, { published: true });
+        return { success: true };
+      }),
+
+    deleteComment: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new Error('Unauthorized');
+        await db.deleteBlogComment(input.id);
         return { success: true };
       }),
   }),
@@ -244,7 +345,7 @@ export const appRouter = router({
     subscribe: publicProcedure
       .input(z.object({ name: z.string().optional(), email: z.string().email() }))
       .mutation(async ({ input }) => {
-        await addNewsletterSubscriber({
+        await db.addNewsletterSubscriber({
           name: input.name || null,
           email: input.email,
         });
@@ -253,16 +354,16 @@ export const appRouter = router({
     
     getAll: protectedProcedure.query(async ({ ctx }) => {
       if (ctx.user?.role !== 'admin') throw new Error('Unauthorized');
-      return await getNewsletterSubscribers();
+      return await db.getNewsletterSubscribers();
     }),
   }),
 
   gallery: router({
     getAll: publicProcedure.query(async () => {
-      return await getMediaItems();
+      return await db.getMediaItems();
     }),
 
-    addItem: protectedProcedure
+    add: protectedProcedure
       .input(z.object({
         url: z.string().url(),
         caption: z.string().optional(),
@@ -271,17 +372,25 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         if (ctx.user?.role !== 'admin') throw new Error('Unauthorized');
-        await addMediaItem(input);
+        await db.addMediaItem(input);
+        return { success: true };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new Error('Unauthorized');
+        await db.deleteMediaItem(input.id);
         return { success: true };
       }),
   }),
 
   timeline: router({
     getAll: publicProcedure.query(async () => {
-      return await getTimelineEvents();
+      return await db.getTimelineEvents();
     }),
 
-    addEvent: protectedProcedure
+    add: protectedProcedure
       .input(z.object({
         title: z.string(),
         description: z.string(),
@@ -290,10 +399,18 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         if (ctx.user?.role !== 'admin') throw new Error('Unauthorized');
-        await addTimelineEvent({
+        await db.addTimelineEvent({
           ...input,
           eventDate: new Date(input.eventDate),
         });
+        return { success: true };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new Error('Unauthorized');
+        await db.deleteTimelineEvent(input.id);
         return { success: true };
       }),
   }),

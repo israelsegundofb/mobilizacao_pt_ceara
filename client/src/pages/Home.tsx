@@ -45,7 +45,7 @@ export default function Home() {
               Leia o Artigo Completo
             </a>
             
-            <Link href="/admin">
+            <Link href="/login">
               <a className="flex items-center gap-2 bg-white text-[#e4142c] hover:bg-white/90 px-4 py-2 rounded-md transition-all text-xs font-black uppercase tracking-widest shadow-lg">
                 <LogIn className="w-4 h-4" />
                 {isAuthenticated ? "Painel Admin" : "Entrar"}
