@@ -1,11 +1,13 @@
 import { trpc } from "@/lib/trpc";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Calendar, User, Tag } from "lucide-react";
+import { ArrowRight, Calendar, User, Tag, LogIn } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function Blog() {
+  const { isAuthenticated } = useAuth();
   const [page, setPage] = useState(0);
   const limit = 6;
   
@@ -29,9 +31,17 @@ export default function Blog() {
               <span className="font-black uppercase tracking-tight text-lg">Blog da Luta</span>
             </a>
           </Link>
-          <Link href="/">
-            <a className="text-white/80 hover:text-white transition-colors text-sm font-black uppercase tracking-widest">Voltar</a>
-          </Link>
+          <div className="flex items-center gap-6">
+            <Link href="/">
+              <a className="text-white/80 hover:text-white transition-colors text-[10px] font-black uppercase tracking-widest">Voltar</a>
+            </Link>
+            <Link href="/admin">
+              <a className="flex items-center gap-2 bg-white text-primary hover:bg-white/90 px-3 py-1.5 rounded-md transition-all text-[10px] font-black uppercase tracking-widest shadow-sm">
+                <LogIn className="w-3 h-3" />
+                {isAuthenticated ? "Painel" : "Entrar"}
+              </a>
+            </Link>
+          </div>
         </div>
       </nav>
 

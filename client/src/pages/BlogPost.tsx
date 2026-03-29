@@ -1,12 +1,14 @@
 import { useRoute, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Calendar, User, Tag, Share2 } from "lucide-react";
+import { Calendar, User, Tag, Share2, LogIn } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
 import CommentSection from "@/components/CommentSection";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function BlogPost() {
+  const { isAuthenticated } = useAuth();
   const [match, params] = useRoute("/blog/:slug");
   const slug = params?.slug as string;
 
@@ -57,6 +59,12 @@ export default function BlogPost() {
                 <span className="font-black uppercase tracking-tight text-lg">Blog da Luta</span>
               </a>
             </Link>
+            <Link href="/admin">
+              <a className="flex items-center gap-2 bg-white text-primary hover:bg-white/90 px-3 py-1.5 rounded-md transition-all text-[10px] font-black uppercase tracking-widest shadow-sm">
+                <LogIn className="w-3 h-3" />
+                {isAuthenticated ? "Painel" : "Entrar"}
+              </a>
+            </Link>
           </div>
         </nav>
 
@@ -88,6 +96,12 @@ export default function BlogPost() {
           </Link>
           <Link href="/blog">
             <a className="text-white/80 hover:text-white transition-colors text-xs font-black uppercase tracking-widest">← Voltar</a>
+          </Link>
+          <Link href="/admin">
+            <a className="flex items-center gap-2 bg-white text-primary hover:bg-white/90 px-3 py-1.5 rounded-md transition-all text-[10px] font-black uppercase tracking-widest shadow-sm">
+              <LogIn className="w-3 h-3" />
+              {isAuthenticated ? "Painel" : "Entrar"}
+            </a>
           </Link>
         </div>
       </nav>

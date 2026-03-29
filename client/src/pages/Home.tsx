@@ -1,8 +1,9 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Heart, Users, AlertCircle, Share2 } from "lucide-react";
+import { ArrowRight, Heart, Users, AlertCircle, Share2, LogIn } from "lucide-react";
 import { useState } from "react";
+import { Link } from "wouter";
 import PetitionSignForm from "@/components/PetitionSignForm";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useParallax } from "@/hooks/useParallax";
@@ -33,14 +34,24 @@ export default function Home() {
             </div>
             <span className="font-bold text-lg">A Estrela do PT</span>
           </div>
-          <a 
-            href="https://blogdoedisonsilva.com.br/2026/03/26/a-agonia-da-estrela-o-pt-do-ceara-a-traicao-estatutaria-e-o-silenciamento-de-nossas-mulheres/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-white/10 hover:bg-white/20 border border-white/30 px-4 py-2 rounded-md transition-colors text-xs font-bold uppercase tracking-wider"
-          >
-            Leia o Artigo Completo
-          </a>
+          
+          <div className="flex items-center gap-4">
+            <a 
+              href="https://blogdoedisonsilva.com.br/2026/03/26/a-agonia-da-estrela-o-pt-do-ceara-a-traicao-estatutaria-e-o-silenciamento-de-nossas-mulheres/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden md:block bg-white/10 hover:bg-white/20 border border-white/30 px-4 py-2 rounded-md transition-colors text-[10px] font-bold uppercase tracking-wider"
+            >
+              Leia o Artigo Completo
+            </a>
+            
+            <Link href="/admin">
+              <a className="flex items-center gap-2 bg-white text-[#e4142c] hover:bg-white/90 px-4 py-2 rounded-md transition-all text-xs font-black uppercase tracking-widest shadow-lg">
+                <LogIn className="w-4 h-4" />
+                {isAuthenticated ? "Painel Admin" : "Entrar"}
+              </a>
+            </Link>
+          </div>
         </div>
       </nav>
 
