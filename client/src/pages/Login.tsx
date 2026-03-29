@@ -63,7 +63,7 @@ export default function Login() {
           </div>
           <CardTitle className="text-3xl font-black text-[#313131] uppercase tracking-tighter">Acesso Restrito</CardTitle>
           <CardDescription className="text-muted-foreground font-medium">
-            Área exclusiva para coordenação e colaboradores autorizados do PT Ceará.
+            Área exclusiva para coordenação e colaboradores autorizados que acreditam em um PT de Esquerda.
           </CardDescription>
         </CardHeader>
         
